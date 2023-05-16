@@ -21,7 +21,19 @@ in
         configuration is reapplied.)
       '';
       enablePamReattach = mkEnableOption ''
-        TODO
+        Enable re-attaching a program to the user's bootstrap session.
+
+        This allows programs like tmux and screen that run in the background to
+        survive across user sessions to work with PAM services that are tied to the
+        bootstrap session.
+
+        When enabled, this option adds the following line to /etc/pam.d/sudo:
+
+            auth       optional       /path/in/nix/store/lib/pam/pam_reattach.so"
+
+        (Note that macOS resets this file when doing a system update. As such, sudo
+        authentication with Touch ID won't work after a system update until the nix-darwin
+        configuration is reapplied.)
       '';
       sudoPamFile = mkOption {
         type = types.path;
