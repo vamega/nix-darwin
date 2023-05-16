@@ -31,65 +31,60 @@ let
   });
 in
 {
-  foo = makePamTest {
+  sudo-and-tmux-enabled = makePamTest {
     settings = {
       enableSudoTouchIdAuth = true;
       enablePamReattach = true;
     };
     assertions = file: ''
-      exit 1
+      echo "Testing enableSudoTouchIdAuth = true and enablePamReattach = true"
+      if ! grep 'pam_tid.so' ${file} > /dev/null; then
+        echo "pam_tid.so not found inside ${file}"
+        exit 1
+      fi
+
+      if ! grep 'pam_reattach.so' ${file} > /dev/null; then
+        echo "pam_reattach.so not found inside ${file}"
+        exit 1
+      fi
     '';
   };
 
-  # sudo-and-tmux-enabled = makePamTest {
-  #   settings = {
-  #     enableSudoTouchIdAuth = true;
-  #     enablePamReattach = true;
-  #   };
-  #   assertions = file: ''
-  #     if ! grep 'pam_tid.so' ${file} > /dev/null; then
-  #       echo "pam_tid.so not found inside ${file}"
-  #       exit 1
-  #     fi
+  sudo-enabled = makePamTest {
+    settings = {
+      enableSudoTouchIdAuth = true;
+      enablePamReattach = false;
+    };
+    assertions = file: ''
+      echo "Testing enableSudoTouchIdAuth = true and enablePamReattach = false"
+      if ! grep 'pam_tid.so' ${file} > /dev/null; then
+        echo "pam_tid.so not found inside ${file}"
+        exit 1
+      fi
 
-  #     if ! grep 'pam_reattach.so' ${file} > /dev/null; then
-  #       echo "pam_reattach.so not found inside ${file}"
-  #       exit 1
-  #     fi
-  #   '';
-  # };
-  # sudo-enabled = makePamTest {
-  #   settings = {
-  #     enableSudoTouchIdAuth = true;
-  #     enablePamReattach = false;
-  #   };
-  #   assertions = file: ''
-  #     if ! grep 'pam_tid.so' ${file} > /dev/null; then
-  #       echo "pam_tid.so not found inside ${file}"
-  #       exit 1
-  #     fi
+      if grep 'pam_reattach.so' ${file} > /dev/null; then
+        echo "pam_reattach.so found inside ${file}"
+        exit 1
+      fi
+    '';
+  };
 
-  #     if grep 'pam_reattach.so' ${file} > /dev/null; then
-  #       echo "pam_reattach.so found inside ${file}"
-  #       exit 1
-  #     fi
-  #   '';
-  # };
-  # tmux-enabled = makePamTest {
-  #   settings = {
-  #     enableSudoTouchIdAuth = false;
-  #     enablePamReattach = true;
-  #   };
-  #   assertions = file: ''
-  #     if grep 'pam_tid.so' ${file} > /dev/null; then
-  #       echo "pam_tid.so found inside ${file}"
-  #       exit 1
-  #     fi
+  tmux-enabled = makePamTest {
+    settings = {
+      enableSudoTouchIdAuth = false;
+      enablePamReattach = true;
+    };
+    assertions = file: ''
+      echo "Testing enableSudoTouchIdAuth = false and enablePamReattach = true"
+      if grep 'pam_tid.so' ${file} > /dev/null; then
+        echo "pam_tid.so found inside ${file}"
+        exit 1
+      fi
 
-  #     if grep 'pam_reattach.so' ${file} > /dev/null; then
-  #       echo "pam_reattach.so found inside ${file}"
-  #       exit 1
-  #     fi
-  #   '';
-  # };
+      if grep 'pam_reattach.so' ${file} > /dev/null; then
+        echo "pam_reattach.so found inside ${file}"
+        exit 1
+      fi
+    '';
+  };
 }
